@@ -1,0 +1,7 @@
+*.blend1
+assets/export/*.ydr
+assets/export/*.ytyp
+assets/tools/bin/
+assets/tools/obj/
+dist/
+__pycache__/

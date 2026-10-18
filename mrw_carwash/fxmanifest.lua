@@ -1,19 +1,26 @@
 fx_version 'cerulean'
 game 'gta5'
-description 'MrWayne - CarWash'
+name 'mrw_carwash'
+description 'MRW pressure wash — original props, ox inventory, target and lib'
 author 'MrWayne'
-version '1.0.1'
+version '3.0.0-rc.1'
 lua54 'yes'
 
 shared_scripts {
-	'config.lua',
-	'framework.lua',
+    '@ox_lib/init.lua',
+    'config.lua',
+    'shared/core.lua',
 }
-
-client_scripts {
-	'client.lua',
-}
-
 server_scripts {
-	'server.lua',
+    'server/bridge.lua',
+    'server/main.lua',
 }
+client_script 'client.lua'
+files {
+    'locales/*.json',
+    'stream/mrw_carwash_props.ytyp',
+}
+data_file 'DLC_ITYP_REQUEST' 'stream/mrw_carwash_props.ytyp'
+dependencies {'ox_lib', 'ox_inventory', 'ox_target', '/onesync'}
+
+escrow_ignore {'config.lua', 'locales/*.json', 'server/bridge.lua'}

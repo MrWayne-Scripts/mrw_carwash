@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<CMapTypes>
+  <archetypes>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="120" />
+      <flags value="32" />
+      <specialAttribute value="0" />
+      <bbMin x="-0.46580583" y="-0.3515" z="0.0" />
+      <bbMax x="0.6029904" y="0.32" z="1.7850001" />
+      <bsCentre x="0.06859228" y="-0.015750006" z="0.89250004" />
+      <bsRadius value="1.0930991" />
+      <hdTextureDist value="40" />
+      <name>mrw_pressure_stand</name>
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>mrw_pressure_stand</assetName>
+    </Item>
+    <Item type="CBaseArchetypeDef">
+      <lodDist value="120" />
+      <flags value="32" />
+      <specialAttribute value="0" />
+      <bbMin x="-0.039" y="-0.08595103" z="-0.24743882" />
+      <bbMax x="0.039" y="0.7410001" z="0.14450005" />
+      <bsCentre x="0.0" y="0.32752454" z="-0.051469386" />
+      <bsRadius value="0.45922443" />
+      <hdTextureDist value="40" />
+      <name>mrw_pressure_gun</name>
+      <assetType>ASSET_TYPE_DRAWABLE</assetType>
+      <assetName>mrw_pressure_gun</assetName>
+    </Item>
+  </archetypes>
+  <name>mrw_carwash_props</name>
+</CMapTypes>
