@@ -1,5 +1,12 @@
 # Změny
 
+## 3.0.0-rc.2
+
+- Přepracovaný červenočerný stojan a pistole bez nápisu na skříni.
+- Prodloužená hadice volně položená u stojanu a herní spojení k držené pistoli.
+- Přehlednější config bez návodných poznámek u jednotlivých voleb.
+- Nový popis resource a autor nastavený na MrW.
+
 ## 3.0.0-rc.1
 
 - Ruční tlakové mytí místo původní automatické myčky.

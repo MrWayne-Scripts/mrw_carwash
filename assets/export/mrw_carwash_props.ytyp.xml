@@ -5,10 +5,10 @@
       <lodDist value="120" />
       <flags value="32" />
       <specialAttribute value="0" />
-      <bbMin x="-0.46580583" y="-0.3515" z="0.0" />
-      <bbMax x="0.6029904" y="0.32" z="1.7850001" />
-      <bsCentre x="0.06859228" y="-0.015750006" z="0.89250004" />
-      <bsRadius value="1.0930991" />
+      <bbMin x="-0.49" y="-0.993" z="0.0" />
+      <bbMax x="1.2598091" y="0.35" z="1.7850001" />
+      <bsCentre x="0.38490456" y="-0.3215" z="0.89250004" />
+      <bsRadius value="1.4187764" />
       <hdTextureDist value="40" />
       <name>mrw_pressure_stand</name>
       <assetType>ASSET_TYPE_DRAWABLE</assetType>
@@ -18,10 +18,10 @@
       <lodDist value="120" />
       <flags value="32" />
       <specialAttribute value="0" />
-      <bbMin x="-0.039" y="-0.08595103" z="-0.24743882" />
-      <bbMax x="0.039" y="0.7410001" z="0.14450005" />
-      <bsCentre x="0.0" y="0.32752454" z="-0.051469386" />
-      <bsRadius value="0.45922443" />
+      <bbMin x="-0.052" y="-0.08800001" z="-0.24796084" />
+      <bbMax x="0.049" y="0.7455001" z="0.14600003" />
+      <bsCentre x="-0.0015000012" y="0.32875004" z="-0.050980404" />
+      <bsRadius value="0.46371558" />
       <hdTextureDist value="40" />
       <name>mrw_pressure_gun</name>
       <assetType>ASSET_TYPE_DRAWABLE</assetType>

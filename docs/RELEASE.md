@@ -1,6 +1,6 @@
 # Vydání a prodej
 
-Aktuální označení: **3.0.0-rc.1**. Implementace, modely a automatické kontroly jsou
+Aktuální označení: **3.0.0-rc.2**. Implementace, modely a automatické kontroly jsou
 připravené; plné herní ověření zatím chybí. Neexistuje technická kontrola, která by
 zaručila nulový počet chyb nebo porovnala tento resource s 99 % komunitních scriptů.
 
@@ -20,5 +20,6 @@ nevytváří ani nepublikuje escrow, obchod či produkt. Žádné vzdálené lic
 telemetrie, webhooky ani automatické aktualizace tento resource neobsahuje.
 
 Prodávaný popis má odpovídat dodanému chování: standardní GTA špína, šamponový bonus,
-pevná stočená hadice a vlastní modely. Lokální vrstvy bláta, fyzikální hadice ani
-ověřená integrace s 17Movement nejsou součástí této verze.
+hadice připojená herní fyzikou a vlastní modely. Lokální vrstvy bláta ani integrace
+systému 17Movement nejsou součástí této verze. Fyzikální hadice nebyla zatím ověřena
+na živém serveru, proto ji před vydáním vyzkoušej v různých vzdálenostech od stojanu.

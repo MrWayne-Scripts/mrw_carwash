@@ -1,53 +1,41 @@
-# MRW Carwash 3.0.0-rc.1
+# Ruční myčka vozidel pro FiveM
 
-Ruční tlakové mytí pro FiveM s vlastními 3D modely a integrací **ox_inventory,
-ox_target a ox_lib**. Tato verze je kandidát k hernímu ověření, nikoli tvrzení
-o bezchybnosti nebo dokončené certifikaci pro prodej.
+Autor: **MrW**
 
-![Vlastní modely — render z Blenderu, nikoli screenshot ze hry](assets/previews/mrw_carwash_props.png)
+![Stojan a tlaková pistole](assets/previews/mrw_carwash_props.png)
 
-Hráč u stojanu vyzvedne pistoli přes target nebo použije inventářový předmět.
-Po potvrzení zaplatí poplatek a chodí kolem auta s pistolí v ruce. Držením tlačítka
-myši odstraňuje GTA špínu. Šampon zrychlí čištění; pistole se opotřebovává a zásoba
-vody ubývá. Vybavení zůstává vlastnictvím hráče i po vrácení vizuální pistole.
+Hráč si u stojanu vezme tlakovou pistoli a sám umyje vozidlo. Hadice vede od
+stojanu k pistoli, na zemi má vůli a při pohybu se průběžně přizpůsobuje její
+délka. Stojan i pistole mají vlastní červenočerné 3D modely.
 
-- Vlastní stojan s manometrem, panelem, držákem a navijákem; vlastní pistole s tryskou.
-- Serverové rezervace, omezená kapacita stojanů, platby až po vytvoření pistole.
-- Jedno potvrzení může účtovat nejvýše jednou; neúspěšné vytvoření modelu je bez poplatku.
-- Vybavení a šampon v ox_inventory, životnost a blokace přesunu aktivní pistole.
-- ox_lib menu, průběh vyzvednutí, oznámení, stavový panel a přenastavitelné klávesy.
-- Čas, dosah hadice a vody, kontrola entity a routing bucketu, omezení frekvence eventů.
-- Úklid při smrti, odpojení, ztrátě vybavení, výpadku heartbeatů a restartu resource.
-- České a anglické texty, inventářové ikony, serverové exporty a otevřený platební adaptér.
+Mytí odstraňuje běžnou špínu vozidel v GTA V. Spotřebovává vodu a opotřebovává
+pistoli z ox_inventory; šampon přidá dočasný bonus k čištění. Pro interakce
+slouží ox_target a nabídky, klávesy i stavový panel zajišťuje ox_lib.
 
-## Začínáme
+## Instalace
 
-1. Přečti [instalaci](docs/INSTALLATION.md), zejména definice inventářových předmětů a pořadí startu.
-2. Do serveru vlož složku [mrw_carwash](mrw_carwash), která obsahuje `fxmanifest.lua`.
-3. Uprav [config.lua](mrw_carwash/config.lua) a otestuj [herní scénáře](docs/TESTING.md).
+Resource vyžaduje OneSync, ox_lib, ox_target a ox_inventory. Postup instalace,
+včetně položek do inventáře a pořadí spuštění, je v [návodu](docs/INSTALLATION.md).
+Výchozí stanice, účtování, klávesy a chování mytí upravíš v
+[config.lua](mrw_carwash/config.lua); přehled možností je v
+[dokumentaci konfigurace](docs/CONFIGURATION.md).
 
-Další dokumentace:
+## Součásti
 
-- [Nastavení a ovládání](docs/CONFIGURATION.md)
-- [Architektura, API a hranice ochrany](docs/DEVELOPMENT.md)
-- [Příprava vydání a prodeje](docs/RELEASE.md)
-- [Změny oproti původnímu resource](CHANGELOG.md)
-- [Modely a jejich přestavění](assets/README.md)
+- ruční tlakové mytí s rezervací místa a serverově ověřovanou platbou;
+- vybavení a jeho životnost vedené přes ox_inventory;
+- volitelný šampon, který se spotřebuje při zapnutí;
+- vlastní model stojanu a pistole včetně volně vedené hadice;
+- české a anglické texty a ikony inventářových položek;
+- platební adaptéry pro ox_inventory, ESX Legacy a QBCore.
 
-## Co je ověřeno a co ne
+Podrobnosti o interním API a zdrojových modelech najdeš v
+[dokumentaci vývoje](docs/DEVELOPMENT.md) a [části věnované modelům](assets/README.md).
+Změny od předchozí verze jsou v [changelogu](CHANGELOG.md).
 
-Automatické kontroly ověřují serverové transakce, ochranné podmínky, adaptéry
-plateb, životní cyklus klienta a hranice nastavení s náhradami FiveM/ox API.
-Samostatný převodník vytvořil a znovu načetl herní modely, LODy, vložené textury,
-kolizi stojanu a obě archetypové definice.
+## Stav verze
 
-**FXServer, skutečné ox resources, GTA klient, síťová synchronizace, animace,
-zarovnání v ruce a výkon na živém serveru zde nebyly otestované.** Povinné scénáře
-před ostrým nasazením jsou v dokumentaci testování. Automatické kontroly nejsou
-zárukou bezchybnosti.
-
-Čištění používá standardní GTA špínu rovnoměrně na celém vozidle. Neobsahuje vlastní
-vrstvy nečistot smývané po jednotlivých místech jako specializované placené systémy.
-Šampon je herní bonus s vizuálně světlejším proudem; nevytváří přetrvávající vrstvu
-pěny na karoserii. Hadice na stojanu je pevný model, ne simulovaná hadice ke hráči.
-17Movement není závislostí a žádné jeho modely ani kód nebyly použity.
+Aktuální tag je `v3.0.0-rc.2`. Automatické kontroly kódu a převodu modelů jsou
+zdokumentované v [testovacím přehledu](docs/TESTING.md). Resource ani vzhled
+modelů zatím nebyly ověřené na živém FXServeru a GTA klientovi; před ostrým
+nasazením je potřeba projít herní scénáře.

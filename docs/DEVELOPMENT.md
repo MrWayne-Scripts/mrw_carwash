@@ -66,9 +66,11 @@ opakovanému vynucování stejné hodnoty, takže vozidlo může znovu špinit. 
 přepisovat; neexistuje předstíraná kompatibilita s jejich neveřejnými API.
 
 Pistole jsou lokální objekty, nikoli nové síťové entity. Ostatní klienti vytvoří
-lokální kopii u hráče na základě replikovaného příznaku `mrw_carwash:equipped`
-a odstraní ji po odstreamování nebo ukončení. Příznak je pouze vizuální pomůcka,
-nikoli bezpečnostní oprávnění; vlastník player state může kosmetiku ovlivnit.
+lokální kopii u hráče na základě replikovaných stavů `mrw_carwash:equipped` a
+`mrw_carwash:station`; odstraní ji po odstreamování nebo ukončení. Klient k pistoli
+připojí herní lano od koncovky u příslušného stojanu. Jeho délka průběžně sleduje
+vzdálenost a ponechává rezervu nastavenou v configu. Příznaky jsou pouze vizuální
+pomůcky, nikoli bezpečnostní oprávnění; vlastník player state může kosmetiku ovlivnit.
 Částice nejsou navíc síťované: server distribuuje jen ověřený zásah hráčům poblíž
 ve stejném bucketu. To brání zdvojení stejných částic síťováním i eventem.
 

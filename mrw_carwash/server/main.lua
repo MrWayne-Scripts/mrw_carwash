@@ -16,6 +16,7 @@ local function finish(src, reason)
     local session = sessions[src]
     if not session then return end
     sessions[src] = nil
+    Player(src).state:set('mrw_carwash:station', nil, true)
     Player(src).state:set('mrw_carwash:equipped', false, true)
     TriggerClientEvent('mrw_carwash:release', src, session.id, reason or 'returned')
     if Config.Debug then print(('[mrw_carwash] session=%s end=%s'):format(session.id, reason or 'returned')) end
@@ -73,6 +74,7 @@ lib.callback.register('mrw_carwash:confirm', function(src, id)
     if not paid then finish(src, 'no_money') return reply('no_money') end
     session.confirmed, session.heartbeat = true, GetGameTimer()
     session.expires = os.time() + Config.Washer.sessionSeconds
+    Player(src).state:set('mrw_carwash:station', session.station, true)
     Player(src).state:set('mrw_carwash:equipped', true, true)
     return {ok = true, session = snapshot(session)}
 end)

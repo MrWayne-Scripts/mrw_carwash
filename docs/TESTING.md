@@ -11,9 +11,11 @@ lua5.4 tests/client_spec.lua
 ```
 
 V připraveném cloudu je Lua na `/workspace/.carwash-tools/lua/usr/bin/lua5.4`.
-Celkem 263 kontrol: 237 server/core, 9 platebních adaptérů a 17 klientského
-životního cyklu. Část serverových kontrol ověřuje vlastnosti monotónnosti čištění
-na různých vstupních úrovních; číslo není počtem nezávislých herních scénářů.
+Poslední zaznamenaný běh na verzi 3.0.0-rc.1 měl 263 kontrol: 237 server/core,
+9 platebních adaptérů a 17 klientského životního cyklu. Část serverových kontrol
+ověřuje vlastnosti monotónnosti čištění na různých úrovních; nejde o počet
+nezávislých herních scénářů. Po přidání herní hadice ve verzi rc.2 nebyly tyto
+Lua kontroly znovu spuštěny.
 
 Ověřené větve zahrnují rezervaci bez platby, selhání modelu, zrušení přípravy,
 opakované potvrzení, nedostatek peněz, konkurenci o stojan, vypnuté stanice, individuální a nulové ceny, neměnnou cenu rezervace, nastavení UI, blokaci inventářového
@@ -35,6 +37,7 @@ Zaznamenej verze artifacts/resources, konfiguraci, počet hráčů a výsledek k
 | Oblast | Scénáře a očekávání |
 | --- | --- |
 | Modely | Všechny tři stojany viditelné, správný ground Z a natočení, funkční kolize a target. |
+| Hadice | Spojení stojanu s pistolí, vůle na zemi, změna délky při chůzi, návrat a úklid. |
 | Držení | Pravá ruka drží rukojeť, tryska míří dopředu, proud vychází z ústí; doladit offsety. |
 | Inventář | Ikony, použití itemu u stojanu, odmítnutí mimo stojan, nulová/poškozená životnost. |
 | Vyzvednutí | Zrušení bez poplatku, úspěch s jednou platbou, plný stojan bez platby. |

@@ -26,13 +26,13 @@ def material(name,color):
  mat=bpy.data.materials.new(name);mat.use_nodes=True
  bsdf=mat.node_tree.nodes.get('Principled BSDF');bsdf.inputs['Base Color'].default_value=color;bsdf.inputs['Roughness'].default_value=.3
  return mat
-blue=material('Bottle blue',(.015,.24,.58,1));black=material('Cap black',(.015,.018,.024,1));white=material('Label',(.9,.95,1,1))
+red=material('Bottle red',(.47,.025,.035,1));black=material('Cap black',(.015,.018,.024,1));white=material('Label',(.9,.91,.9,1))
 bpy.ops.mesh.primitive_cube_add(size=1,location=(0,0,.05))
 bottle=bpy.context.object;bottle.dimensions=(.31,.18,.48);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
-bevel=bottle.modifiers.new('Rounded bottle','BEVEL');bevel.width=.045;bevel.segments=4;bottle.data.materials.append(blue)
+bevel=bottle.modifiers.new('Rounded bottle','BEVEL');bevel.width=.045;bevel.segments=4;bottle.data.materials.append(red)
 bpy.ops.mesh.primitive_cylinder_add(vertices=32,radius=.075,depth=.09,location=(0,0,.32));bpy.context.object.data.materials.append(black)
 bpy.ops.mesh.primitive_cube_add(size=1,location=(0,-.093,.05));bpy.context.object.dimensions=(.26,.008,.25);bpy.context.object.data.materials.append(white)
-for label,height,size in [('MRW',.10,.065),('CAR',.015,.045),('SHAMPOO',-.035,.032)]:
+for label,height,size in [('MrW',.10,.065),('CAR',.015,.045),('SHAMPOO',-.035,.032)]:
  curve=bpy.data.curves.new(label,'FONT');curve.body=label;curve.size=size;curve.align_x='CENTER';curve.extrude=.0001
  obj=bpy.data.objects.new(label,curve);bpy.context.collection.objects.link(obj);obj.location=(0,-.100,height);obj.rotation_euler.x=1.570796;obj.data.materials.append(black)
 camera.ortho_scale=.75;cam.location=(.7,-1,.5);cam.rotation_euler=(Vector((0,0,.06))-cam.location).to_track_quat('-Z','Y').to_euler()

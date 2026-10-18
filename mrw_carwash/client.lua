@@ -1,8 +1,66 @@
-local stands, blips, effects, appliedDirt, remoteGuns = {}, {}, {}, {}, {}
+local stands, blips, effects, appliedDirt, remoteGuns, hoses = {}, {}, {}, {}, {}, {}
 local active, pending, preparing, gun, previousWeapon, hud
 local generation, stopping = 0, false
 local menuBind, returnBind
 local anim = Config.Washer.animation
+local ropeTexturesRequested, ropeTexturesOwned = false, false
+local function removeHose(src)
+    local entry = hoses[src]
+    hoses[src] = nil
+    if entry and entry.rope and type(DoesRopeExist) == 'function' and DoesRopeExist(entry.rope)
+        and type(DeleteRope) == 'function' then
+        DeleteRope(entry.rope)
+    end
+end
+local function removeAllHoses()
+    for src in pairs(hoses) do removeHose(src) end
+    if ropeTexturesOwned and type(GetAllRopes) == 'function' and type(RopeUnloadTextures) == 'function'
+        and #GetAllRopes() == 0 then
+        RopeUnloadTextures()
+        ropeTexturesRequested, ropeTexturesOwned = false, false
+    end
+end
+local function ropeTexturesReady()
+    if type(RopeAreTexturesLoaded) ~= 'function' or type(RopeLoadTextures) ~= 'function' then return false end
+    if RopeAreTexturesLoaded() then return true end
+    if not ropeTexturesRequested then
+        ropeTexturesRequested = true
+        ropeTexturesOwned = true
+        RopeLoadTextures()
+    end
+    return RopeAreTexturesLoaded()
+end
+local function hosePoints(stationIndex, hoseGun)
+    local stand = stands[stationIndex]
+    if not stand or not DoesEntityExist(stand) or not hoseGun or not DoesEntityExist(hoseGun) then return end
+    local stationAnchor, gunAnchor = Config.Washer.hoseStandAnchor, Config.Washer.hoseGunAnchor
+    local start = GetOffsetFromEntityInWorldCoords(stand, stationAnchor.x, stationAnchor.y, stationAnchor.z)
+    local finish = GetOffsetFromEntityInWorldCoords(hoseGun, gunAnchor.x, gunAnchor.y, gunAnchor.z)
+    return start, finish
+end
+local function createHose(src, stationIndex, hoseGun)
+    if type(AddRope) ~= 'function' or type(AttachEntitiesToRope) ~= 'function'
+        or type(DoesRopeExist) ~= 'function' or not ropeTexturesReady() then return end
+    local stand = stands[stationIndex]
+    local start, finish = hosePoints(stationIndex, hoseGun)
+    if not stand or not start or not finish then return end
+    local initialLength = math.min(Config.Washer.hoseLength,
+        math.max(1.0, #(finish - start) + Config.Washer.hoseSlack))
+    local origin = (start + finish) * 0.5
+    local ok, rope = pcall(AddRope, origin.x, origin.y, origin.z, 0.0, 0.0, 0.0,
+        Config.Washer.hoseLength, Config.Washer.hoseType, initialLength, 1.0, 1.0,
+        false, true, false, 1.0, false, 0)
+    if not ok or type(rope) ~= 'number' or rope == 0 or not DoesRopeExist(rope) then return end
+    if type(LoadRopeData) == 'function' then pcall(LoadRopeData, rope, Config.Washer.hoseData) end
+    local attached = pcall(AttachEntitiesToRope, rope, stand, hoseGun,
+        start.x, start.y, start.z, finish.x, finish.y, finish.z, initialLength, false, false, nil, nil)
+    if not attached then
+        if DoesRopeExist(rope) and type(DeleteRope) == 'function' then DeleteRope(rope) end
+        return
+    end
+    if type(RopeForceLength) == 'function' then pcall(RopeForceLength, rope, initialLength) end
+    hoses[src] = {rope = rope, station = stationIndex, gun = hoseGun, lastAdjust = GetGameTimer()}
+end
 local function notify(key, kind)
     lib.notify({title = locale('title'), description = locale(key), type = kind or 'inform', position = Config.UI.notificationPosition})
 end
@@ -31,6 +89,7 @@ local function release(tellServer)
     local old = active
     generation = generation + 1
     active = nil
+    removeHose(GetPlayerServerId(PlayerId()))
     if gun and DoesEntityExist(gun) then DeleteEntity(gun) end
     gun = nil
     StopAnimTask(PlayerPedId(), anim.dict, anim.clip, 2.0)
@@ -303,6 +362,7 @@ CreateThread(function()
                     seen[src] = true
                     local entry = remoteGuns[src]
                     if entry and (entry.ped ~= ped or not DoesEntityExist(entry.object)) then
+                        removeHose(src)
                         if DoesEntityExist(entry.object) then DeleteEntity(entry.object) end
                         remoteGuns[src] = nil
                     end
@@ -325,16 +385,55 @@ CreateThread(function()
         end
         for src, entry in pairs(remoteGuns) do
             if not seen[src] then
+                removeHose(src)
                 if DoesEntityExist(entry.object) then DeleteEntity(entry.object) end
                 remoteGuns[src], effects[src] = nil, nil
             end
         end
     end
 end)
+CreateThread(function()
+    while not stopping do
+        local desired = {}
+        if active and gun and DoesEntityExist(gun) then
+            desired[GetPlayerServerId(PlayerId())] = {station = active.station, gun = gun}
+        end
+        for src, entry in pairs(remoteGuns) do
+            local station = Player(src).state['mrw_carwash:station']
+            if type(station) == 'number' and Config.locations[station] then
+                desired[src] = {station = station, gun = entry.object}
+            end
+        end
+        for src, target in pairs(desired) do
+            local hose = hoses[src]
+            if hose and (hose.station ~= target.station or hose.gun ~= target.gun
+                or type(DoesRopeExist) ~= 'function' or not DoesRopeExist(hose.rope)) then
+                removeHose(src)
+                hose = nil
+            end
+            if not hose then
+                createHose(src, target.station, target.gun)
+            elseif GetGameTimer() - hose.lastAdjust >= 500 and type(RopeForceLength) == 'function' then
+                local start, finish = hosePoints(target.station, target.gun)
+                if start and finish then
+                    local length = math.min(Config.Washer.hoseLength,
+                        math.max(1.0, #(finish - start) + Config.Washer.hoseSlack))
+                    pcall(RopeForceLength, hose.rope, length)
+                    hose.lastAdjust = GetGameTimer()
+                else
+                    removeHose(src)
+                end
+            end
+        end
+        for src in pairs(hoses) do if not desired[src] then removeHose(src) end end
+        Wait(250)
+    end
+end)
 AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     stopping = true
     release(true)
+    removeAllHoses()
     if lib.progressActive() and preparing then lib.cancelProgress() end
     for _, entry in pairs(remoteGuns) do if DoesEntityExist(entry.object) then DeleteEntity(entry.object) end end
     if lib.getOpenContextMenu() == 'mrw_carwash_menu' then lib.hideContext(false) end

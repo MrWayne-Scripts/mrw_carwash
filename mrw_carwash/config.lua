@@ -1,122 +1,89 @@
---[[
-    MRW CARWASH • 3.0.0-rc.1
-    Konfigurace serveru. Změny se načtou po restartu resource.
-
-    RYCHLÉ NASTAVENÍ
-      1. Zvol jazyk a způsob platby.
-      2. Přidej předměty z install/items.lua do ox_inventory.
-      3. Uprav souřadnice a natočení stojanů dole v tomto souboru.
-      4. Ve hře ověř držení pistole, kolize a multiplayer podle docs/TESTING.md.
-
-    Jednotky: metry, sekundy; výslovně označené časy jsou v milisekundách.
-    false = vypnuto. nil u ceny stojanu = použít společnou cenu.
-    Žádné heslo, token ani licenční klíč do tohoto souboru nepatří.
-    Přehled všech voleb: docs/CONFIGURATION.md.
-]]
+-- MRW Carwash | 3.0.0-rc.2
+-- Autor: MrW
+-- Změny konfigurace načte restart resource.
 
 Config = {
-    -- ═══════════════════════════════════════════════════════════════════════
-    -- 01 / ZÁKLAD
-    -- ═══════════════════════════════════════════════════════════════════════
-    Locale = 'cs',             -- 'cs' / 'en'; texty jsou v locales/*.json
-    Debug = false,            -- výpis začátku a konce relací do konzole
-    Framework = 'auto',       -- 'auto' / 'esxlegacy' / 'qbcore' / 'standalone'
+    -- Základní nastavení
+    Locale = 'cs',
+    Debug = false,
+    Framework = 'auto',
 
-    -- ═══════════════════════════════════════════════════════════════════════
-    -- 02 / EKONOMIKA
-    -- ═══════════════════════════════════════════════════════════════════════
+    -- Platby
     Payment = {
-        provider = 'inventory', -- 'inventory' = měnový item, 'framework' = účty
-        item = 'money',         -- jen inventory; musí existovat v ox_inventory
-        accounts = {'money', 'bank'}, -- jen framework; QBCore: {'cash', 'bank'}
-        cost = 30,              -- základní cena relace; 0 = zdarma
-        symbol = '$',           -- pouze zobrazení; nemění ekonomiku ani měnu
-        -- Poplatek není záloha. Vrácení, smrt ani restart jej automaticky nevrací.
-        -- Účtuje se až po vytvoření pistole, potvrzení serverem a kontrole vybavení.
+        provider = 'inventory',
+        item = 'money',
+        accounts = {'money', 'bank'},
+        cost = 30,
+        symbol = '$',
     },
 
-    -- ═══════════════════════════════════════════════════════════════════════
-    -- 03 / OX_INVENTORY A OPOTŘEBENÍ
-    -- ═══════════════════════════════════════════════════════════════════════
+    -- Inventář a vybavení
     Inventory = {
-        required = true,                -- hráč musí vlastnit funkční pistoli
-        tool = 'mrw_pressure_washer',    -- stack=false, consume=0, durability=true
-        soap = 'mrw_carwash_soap',       -- při zapnutí šamponu se spotřebuje 1 kus
-        wearPerTick = 0.04,              -- úbytek z životnosti 0–100 za platný střik
-        -- 100 / 0.04 = přibližně 2500 střiků. Pistole není dočasný pronajatý item.
-        -- Po ukončení zůstane v inventáři. Časová degradace (degrade) se nepoužívá.
+        required = true,
+        tool = 'mrw_pressure_washer',
+        soap = 'mrw_carwash_soap',
+        wearPerTick = 0.04,
     },
 
-    -- ═══════════════════════════════════════════════════════════════════════
-    -- 04 / PRŮBĚH MYTÍ, DOSAH A SPOTŘEBA
-    -- ═══════════════════════════════════════════════════════════════════════
+    -- Mytí a hadice
     Washer = {
-        radius = 20.0,             -- dosah od stojanu; překročení ukončí relaci
-        range = 6.0,               -- dosah proudu od hráče
-        tickMs = 350,              -- interval střiků v ms; 100–5000
-        dirtPerTick = 0.35,        -- GTA špína 0–15, úbytek za zásah vozidla
-        sessionSeconds = 600,      -- maximální délka aktivního mytí
-        waterTicks = 240,          -- zásoba střiků; ubývá i při střiku do prázdna
-        pickupMs = 1200,           -- zrušitelná příprava před rezervací / platbou
-        targetDistance = 2.5,      -- vzdálenost pro interakci ox_target
-        effectDistance = 60.0,     -- distribuce efektů hráčům poblíž (stejný bucket)
+        radius = 20.0,
+        range = 6.0,
+        tickMs = 350,
+        dirtPerTick = 0.35,
+        sessionSeconds = 600,
+        waterTicks = 240,
+        pickupMs = 1200,
+        targetDistance = 2.5,
+        effectDistance = 60.0,
 
-        -- VLASTNÍ MODELY • přiložené soubory jsou v stream/
         standModel = 'mrw_pressure_stand',
         gunModel = 'mrw_pressure_gun',
-        handBone = 57005,          -- pravá ruka
+        handBone = 57005,
         gunOffset = vector3(0.03, 0.02, -0.02),
-        gunRotation = vector3(-90.0, 0.0, 0.0), -- stupně; doladit s animací ve hře
-        nozzleOffset = vector3(0.0, 0.745, 0.078), -- přesné ústí dodaného modelu
+        gunRotation = vector3(-90.0, 0.0, 0.0),
+        nozzleOffset = vector3(0.0, 0.745, 0.078),
+        hoseStandAnchor = vector3(1.105, -0.96, 0.036),
+        hoseGunAnchor = vector3(0.0, -0.08, -0.24),
+        hoseSlack = 3.0,
+        hoseLength = 24.0,
+        hoseType = 3,
+        hoseData = 'ropeFamily3',
 
-        -- VIZUÁL • samotné mytí stále povoluje a počítá server
         particleDict = 'core',
         particleName = 'ent_sht_water',
         animation = {dict = 'weapons@rifle@', clip = 'idle', flag = 49},
     },
 
-    -- ═══════════════════════════════════════════════════════════════════════
-    -- 05 / ŠAMPON
-    -- ═══════════════════════════════════════════════════════════════════════
+    -- Šampon
     Foam = {
         enabled = true,
-        multiplier = 1.6, -- násobič úbytku špíny po spotřebování jedné dávky
-        -- Platí do konce relace. Jde o bonus a světlejší proud, nikoli vrstvu pěny.
+        multiplier = 1.6,
     },
 
-    -- ═══════════════════════════════════════════════════════════════════════
-    -- 06 / OVLÁDÁNÍ A ROZHRANÍ OX_LIB
-    -- ═══════════════════════════════════════════════════════════════════════
+    -- Ovládání
     Keys = {
         menu = 'G',
         returnWasher = 'X',
-        -- Výchozí klávesy; hráč si je může přemapovat ve FiveM nastavení.
-        -- Stříkání používá levé tlačítko myši.
     },
+
+    -- Rozhraní
     UI = {
         showHud = true,
-        hudPosition = 'right-center',      -- right-center / left-center / top-center
+        hudPosition = 'right-center',
         notificationPosition = 'top-right',
-        progressPosition = 'bottom',       -- bottom / middle
+        progressPosition = 'bottom',
     },
+
+    -- Mapa
     Blips = {
         enabled = true,
         sprite = 100,
-        colour = 3,
+        colour = 1,
         scale = 0.75,
     },
 
-    -- ═══════════════════════════════════════════════════════════════════════
-    -- 07 / STANICE
-    -- ═══════════════════════════════════════════════════════════════════════
-    -- id         unikátní stálý identifikátor, bez mezer
-    -- enabled    false vypne použití, model i blip této stanice
-    -- location   souřadnice; ground Z a průjezd ověř na své mapě/MLO
-    -- heading    natočení ve stupních
-    -- capacity   počet souběžných rezervací a aktivních hráčů, 1–10
-    -- bucket     serverový routing bucket; 0 = běžný veřejný svět
-    -- price      nil = Payment.cost, 0 = zdarma, jiné celé číslo = vlastní cena
-    -- showBlip   false skryje jen mapovou značku této stanice
+    -- Stanice
     locations = {
         {
             id = 'strawberry',
@@ -151,7 +118,5 @@ Config = {
             price = nil,
             showBlip = true,
         },
-        -- DALŠÍ STANICE: zkopíruj celý blok výše, dej mu nové id a souřadnice.
-        -- Nezapomeň na čárku za blokem a jedinečné id.
     },
 }

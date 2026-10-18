@@ -30,6 +30,11 @@ resource, který ukončí probíhající relace. Před restartem upozorni hráč
 | `Washer.standModel/gunModel` | Vlastní modely přiložené v resource. |
 | `Washer.gunOffset/gunRotation` | Posun a natočení vůči pravé ruce; doladit ve hře. |
 | `Washer.nozzleOffset` | Lokální ústí trysky; dodaný model používá `(0, 0.745, 0.078)`. |
+| `Washer.hoseStandAnchor` | Koncový bod hadice na stojanu v místních souřadnicích modelu. |
+| `Washer.hoseGunAnchor` | Místo připojení hadice na pistoli. |
+| `Washer.hoseSlack` | Délková rezerva hadice, aby při pohybu nebyla napnutá. |
+| `Washer.hoseLength` | Největší délka simulovaného lana. Má pokrývat dosah stanice i rezervu. |
+| `Washer.hoseType/hoseData` | Typ lana GTA a jeho předvolba pro vykreslení hadice. |
 | `Foam.enabled` | Povolí spotřebu šamponu přes menu. |
 | `Foam.multiplier` | Násobič čištění po spotřebování jedné dávky na relaci. |
 | `Keys.menu/returnWasher` | Výchozí klávesy menu a ukončení; UI zobrazuje skutečné přemapované klávesy. |

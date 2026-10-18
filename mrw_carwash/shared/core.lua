@@ -28,11 +28,18 @@ function Carwash.validateConfig()
     assert(Carwash.finite(Config.Washer.targetDistance) and Config.Washer.targetDistance > 0 and Config.Washer.targetDistance <= 5, 'Invalid target distance')
     assert(Carwash.integer(Config.Washer.pickupMs, 0, 10000), 'Invalid pickup duration')
     assert(Carwash.finite(Config.Washer.effectDistance) and Config.Washer.effectDistance >= Config.Washer.range and Config.Washer.effectDistance <= 200, 'Invalid effect distance')
+    assert(Carwash.finite(Config.Washer.hoseSlack) and Config.Washer.hoseSlack >= 0 and Config.Washer.hoseSlack <= 10, 'Invalid hose slack')
+    assert(Carwash.finite(Config.Washer.hoseLength) and Config.Washer.hoseLength >= Config.Washer.radius + Config.Washer.hoseSlack and Config.Washer.hoseLength <= 100, 'Invalid hose length')
+    assert(Carwash.integer(Config.Washer.hoseType, 0, 7), 'Invalid GTA rope type')
+    assert(type(Config.Washer.hoseData) == 'string' and #Config.Washer.hoseData > 0 and #Config.Washer.hoseData <= 64, 'Invalid GTA rope preset')
     assert(type(Config.Payment.accounts) == 'table' and #Config.Payment.accounts > 0, 'Missing payment accounts')
     for _, name in ipairs({Config.Payment.item, Config.Inventory.tool, Config.Inventory.soap, Config.Washer.standModel, Config.Washer.gunModel}) do
         assert(type(name) == 'string' and #name > 0, 'Missing item or model name')
     end
     assert(type(Config.Payment.symbol) == 'string' and #Config.Payment.symbol <= 12, 'Invalid currency display symbol')
+    for _, anchor in ipairs({Config.Washer.hoseStandAnchor, Config.Washer.hoseGunAnchor}) do
+        assert(anchor and Carwash.finite(anchor.x) and Carwash.finite(anchor.y) and Carwash.finite(anchor.z), 'Invalid hose anchor')
+    end
     assert(type(Config.Keys.menu) == 'string' and #Config.Keys.menu > 0 and type(Config.Keys.returnWasher) == 'string' and #Config.Keys.returnWasher > 0, 'Invalid keyboard bindings')
     local hudPositions = {['right-center']=true, ['left-center']=true, ['top-center']=true, ['bottom-center']=true}
     local notifyPositions = {top=true, bottom=true, ['top-right']=true, ['top-left']=true, ['bottom-right']=true, ['bottom-left']=true, ['center-right']=true, ['center-left']=true}

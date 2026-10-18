@@ -1,9 +1,9 @@
 fx_version 'cerulean'
 game 'gta5'
 name 'mrw_carwash'
-description 'MRW pressure wash — original props, ox inventory, target and lib'
-author 'MrWayne'
-version '3.0.0-rc.1'
+description 'Ruční samoobslužná tlaková myčka od MrW'
+author 'MrW'
+version '3.0.0-rc.2'
 lua54 'yes'
 
 shared_scripts {
