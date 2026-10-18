@@ -38,6 +38,15 @@ Config = {
         effectDistance = 60.0,
 
         standModel = 'mrw_pressure_stand',
+        -- Nudge the cabinet off the vehicle lane, relative to its heading.
+        standOffset = vector3(-0.75, 0.0, 0.0),
+        standGroundOffset = 0.0,
+        standTargetSize = vector3(1.6, 1.2, 2.2),
+        -- The custom drawable has no reliable walk collision, so use hidden vanilla boxes.
+        standColliderModel = 'prop_box_wood02a_pu',
+        standColliderWidth = 1.2,
+        standColliderHeight = 1.8,
+        groundWaitMs = 1500,
         gunModel = 'mrw_pressure_gun',
         handBone = 57005,
         gunOffset = vector3(0.03, 0.02, -0.02),
@@ -120,3 +129,4 @@ Config = {
         },
     },
 }
+

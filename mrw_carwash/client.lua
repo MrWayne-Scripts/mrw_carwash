@@ -1,4 +1,4 @@
-local stands, blips, effects, appliedDirt, remoteGuns, hoses = {}, {}, {}, {}, {}, {}
+local stands, standTargets, standColliders, blips, effects, appliedDirt, remoteGuns, hoses = {}, {}, {}, {}, {}, {}, {}, {}
 local active, pending, preparing, gun, previousWeapon, hud
 local generation, stopping = 0, false
 local menuBind, returnBind
@@ -79,6 +79,47 @@ end
 local function model(name)
     local hash = joaat(name)
     return IsModelInCdimage(hash) and load(RequestModel, HasModelLoaded, hash) and hash or nil
+end
+local function offsetPosition(position, offset, heading)
+    local angle = math.rad(heading or 0.0)
+    return vector3(position.x + offset.x * math.cos(angle) + offset.y * math.sin(angle),
+        position.y - offset.x * math.sin(angle) + offset.y * math.cos(angle), position.z + offset.z)
+end
+local function groundLevel(position, fallback)
+    RequestCollisionAtCoord(position.x, position.y, fallback + 3.0)
+    local deadline = GetGameTimer() + Config.Washer.groundWaitMs
+    repeat
+        local found, ground = GetGroundZFor_3dCoord(position.x, position.y, fallback + 3.0, false)
+        if found then return ground end
+        Wait(50)
+    until stopping or GetGameTimer() >= deadline
+    return fallback
+end
+local function addStandColliders(index, position, ground, heading, hash)
+    if not hash then return end
+    local min, max = GetModelDimensions(hash)
+    local width, height = math.max(max.x - min.x, 0.2), math.max(max.z - min.z, 0.2)
+    local columns = math.max(1, math.min(3, math.ceil(Config.Washer.standColliderWidth / (width * 0.85))))
+    local layers = math.max(1, math.min(4, math.ceil(Config.Washer.standColliderHeight / (height * 0.9))))
+    local entities = {}
+    for layer = 0, layers - 1 do
+        for column = 1, columns do
+            local localX = (column - (columns + 1) / 2) * width * 0.82
+            local offset = offsetPosition(vector3(0.0, 0.0, 0.0), vector3(localX, 0.0, 0.0), heading)
+            local z = ground + layer * height - min.z
+            local collider = CreateObjectNoOffset(hash, position.x + offset.x, position.y + offset.y, z, false, false, false)
+            if collider ~= 0 then
+                SetEntityAsMissionEntity(collider, true, true)
+                SetEntityHeading(collider, heading or 0.0)
+                SetEntityCollision(collider, true, true)
+                SetEntityAlpha(collider, 0, false)
+                SetEntityVisible(collider, false, false)
+                FreezeEntityPosition(collider, true)
+                entities[#entities + 1] = collider
+            end
+        end
+    end
+    standColliders[index] = entities
 end
 local function hideHud()
     local open, text = lib.isTextUIOpen()
@@ -189,27 +230,46 @@ returnBind = lib.addKeybind({name = 'mrw_carwash_return', description = locale('
 
 local function deleteStand(index)
     local object = stands[index]
+    if standTargets[index] and GetResourceState('ox_target') == 'started' then
+        exports.ox_target:removeZone(standTargets[index])
+    end
+    standTargets[index] = nil
+    for _, collider in ipairs(standColliders[index] or {}) do
+        if DoesEntityExist(collider) then DeleteEntity(collider) end
+    end
+    standColliders[index] = nil
     if not object then return end
-    if GetResourceState('ox_target') == 'started' then exports.ox_target:removeLocalEntity(object) end
     if DoesEntityExist(object) then DeleteEntity(object) end
     stands[index] = nil
 end
 CreateThread(function()
-    -- Only three low-cost static stands by default. No per-frame target-distance loop.
+    -- Static stands use ground-aligned hidden collision boxes and target zones, not drawable collision.
     local hash = model(Config.Washer.standModel)
     if not hash then print('[mrw_carwash] Stand model failed to load; check streamed assets and YTYP registration.') return end
+    local colliderHash = model(Config.Washer.standColliderModel)
+    if not colliderHash then print('[mrw_carwash] Collision proxy model failed to load.') end
+    local min, max = GetModelDimensions(hash)
+    local targetSize = Config.Washer.standTargetSize
     for index, station in ipairs(Config.locations) do
         if stopping then break end
         if station.enabled == false then goto next_station end
-        local p = station.location
-        local object = CreateObjectNoOffset(hash, p.x, p.y, p.z, false, false, false)
+        local p = offsetPosition(station.location, station.standOffset or Config.Washer.standOffset, station.heading)
+        local ground = groundLevel(p, station.location.z)
+        local object = CreateObjectNoOffset(hash, p.x, p.y, ground - min.z + (station.standGroundOffset or Config.Washer.standGroundOffset), false, false, false)
         if object ~= 0 then
             stands[index] = object
             SetEntityHeading(object, station.heading or 0.0)
-            PlaceObjectOnGroundProperly(object)
+            SetEntityCoordsNoOffset(object, p.x, p.y, ground - min.z + (station.standGroundOffset or Config.Washer.standGroundOffset), false, false, false)
+            SetEntityCollision(object, true, true)
             FreezeEntityPosition(object, true)
             SetEntityInvincible(object, true)
-            exports.ox_target:addLocalEntity(object, {
+            standTargets[index] = exports.ox_target:addBoxZone({
+                name = 'mrw_carwash_station_' .. station.id,
+                coords = vector3(p.x, p.y, ground + targetSize.z / 2),
+                size = targetSize,
+                rotation = station.heading or 0.0,
+                debug = Config.Debug,
+                options = {
                 {name = 'mrw_carwash_take_' .. station.id, icon = 'fa-solid fa-gun', label = locale('take', Config.Payment.symbol, station.price or Config.Payment.cost), distance = Config.Washer.targetDistance,
                     canInteract = function() return not active and not pending and not IsPedInAnyVehicle(PlayerPedId(), false) end,
                     onSelect = function() take(index) end},
@@ -217,10 +277,12 @@ CreateThread(function()
                     canInteract = function() return active and active.station == index end, onSelect = menu},
                 {name = 'mrw_carwash_return_' .. station.id, icon = 'fa-solid fa-rotate-left', label = locale('return'), distance = Config.Washer.targetDistance,
                     canInteract = function() return active and active.station == index end, onSelect = function() release(true) end},
+                },
             })
+            addStandColliders(index, p, ground, station.heading or 0.0, colliderHash)
         else print(('[mrw_carwash] Failed to create stand %s'):format(station.id)) end
         if Config.Blips.enabled and station.showBlip ~= false then
-            local blip = AddBlipForCoord(p.x, p.y, p.z)
+            local blip = AddBlipForCoord(station.location.x, station.location.y, station.location.z)
             SetBlipSprite(blip, Config.Blips.sprite)
             SetBlipColour(blip, Config.Blips.colour)
             SetBlipScale(blip, Config.Blips.scale)
@@ -233,6 +295,7 @@ CreateThread(function()
         ::next_station::
     end
     SetModelAsNoLongerNeeded(hash)
+    if colliderHash then SetModelAsNoLongerNeeded(colliderHash) end
     load(RequestNamedPtfxAsset, HasNamedPtfxAssetLoaded, Config.Washer.particleDict)
 end)
 
@@ -442,3 +505,4 @@ AddEventHandler('onResourceStop', function(resource)
     RemoveNamedPtfxAsset(Config.Washer.particleDict)
     RemoveAnimDict(anim.dict)
 end)
+
